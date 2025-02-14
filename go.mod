@@ -1,4 +1,4 @@
-module github.com/VictoriaMetrics/metricsql
+module github.com/gopaytech/metricsql
 
 go 1.13
 
