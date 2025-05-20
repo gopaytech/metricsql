@@ -130,6 +130,10 @@ func TestParseSuccess(t *testing.T) {
 	another(`{__name__="a",bar="baz" or __name__="a" or __name__="a"}`, `a{bar="baz"}`)
 	another(`{__name__="a",bar="baz" or __name__="a",bar="abc"}`, `a{bar="baz" or bar="abc"}`)
 	another(`{__name__="a" or __name__="a",bar="abc",x!="y"}`, `a{bar="abc",x!="y"}`)
+	another(`{__name__="metric",a="1" or __name__="metric",b="2"}`, `metric{a="1" or b="2"}`)
+	another(`{"foo",a="1" or "bar",b="2"}`, `{__name__="foo",a="1" or __name__="bar",b="2"}`)
+	same(`{__name__="foo",a="1" or __name__="bar",b="2"}`)
+	same(`{__name__="foo",a="1" or __name__=~"bar",b="2"}`)
 
 	// @ modifier
 	// See https://prometheus.io/docs/prometheus/latest/querying/basics/#modifier
@@ -449,6 +453,8 @@ func TestParseSuccess(t *testing.T) {
 	same(`avg(x) limit 10`)
 	same(`avg(x) without(z,b) limit 1`)
 	another(`avg by(x) (z) limit 20`, `avg(z) by(x) limit 20`)
+	// utf-8 quoted label names
+	another(`sum({"metric name","label"="value"}) by ("cluster!one",instance)`, `sum(metric\ name{label="value"}) by(cluster\!one,instance)`)
 
 	// All the above
 	another(`Sum(timestamp(M) * M{X=""}[5m] Offset 7m - 123, 35) BY (X, y) * LAG("Test")`,
